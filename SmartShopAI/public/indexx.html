@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShopAI - Akıllı Ürün Asistanı</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>SmartShopAI</h1>
+        <p>Aklınızdaki ürünü doğal dille arayın, size en uygununu bulalım!</p>
+        <div class="search-box">
+            <textarea id="queryInput" placeholder="Örn: 'Anneler Günü için spor yapmayı seven anneme bütçesi 5000-10000 TL arası, giyilebilir teknoloji bir hediye arıyorum.'"></textarea>
+            <button id="searchButton">Ürünleri Ara</button>
+        </div>
+
+        <div class="filters-sort hidden">
+            <div class="filter-group">
+                <label for="categoryFilter">Kategori:</label>
+                <select id="categoryFilter">
+                    <option value="">Tümü</option>
+                    </select>
+            </div>
+            <div class="filter-group price-filter">
+                <label>Fiyat Aralığı:</label>
+                <input type="number" id="minPrice" placeholder="Min TL" min="0">
+                <span>-</span>
+                <input type="number" id="maxPrice" placeholder="Max TL" min="0">
+            </div>
+            <div class="filter-group">
+                <label for="sortOrder">Sırala:</label>
+                <select id="sortOrder">
+                    <option value="">Varsayılan</option>
+                    <option value="price-asc">Fiyata Göre Artan</option>
+                    <option value="price-desc">Fiyata Göre Azalan</option>
+                </select>
+            </div>
+            <button id="applyFiltersButton" class="apply-filters-btn">Filtrele</button>
+        </div>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            Ürünler aranıyor...
+        </div>
+        <div id="error" class="error-message hidden"></div>
+
+        <div id="results" class="results-container">
+            </div>
+
+        <div id="productDetailModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div id="modalProductContent">
+                    </div>
+            </div>
+        </div>
+
+        <div id="compareModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-button" data-modal="compareModal">&times;</span>
+                <h3>Ürünleri Karşılaştır</h3>
+                <div id="productsToCompareList">
+                    </div>
+                <button id="startComparisonButton">Karşılaştır</button>
+                <div id="comparisonResults">
+                    </div>
+                <div id="compareLoading" class="hidden">
+                    <div class="spinner"></div> Karşılaştırılıyor...
+                </div>
+                 <div id="compareError" class="error-message hidden"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const queryInput = document.getElementById('queryInput');
+        const searchButton = document.getElementById('searchButton');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const resultsDiv = document.getElementById('results');
+
+        const filtersSortDiv = document.querySelector('.filters-sort');
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const sortOrderSelect = document.getElementById('sortOrder');
+        const applyFiltersButton = document.getElementById('applyFiltersButton');
+
+        // Modal elemanları
+        const productDetailModal = document.getElementById('productDetailModal');
+        const compareModal = document.getElementById('compareModal');
+        const modalProductContent = document.getElementById('modalProductContent');
+        const closeButtons = document.querySelectorAll('.close-button');
+        const productsToCompareList = document.getElementById('productsToCompareList');
+        const startComparisonButton = document.getElementById('startComparisonButton');
+        const comparisonResultsDiv = document.getElementById('comparisonResults');
+        const compareLoadingDiv = document.getElementById('compareLoading');
+        const compareErrorDiv = document.getElementById('compareError');
+
+        let currentProducts = []; // Gösterilen tüm ürünleri tutmak için (filtrelenmeden önce)
+        let filteredAndSortedProducts = []; // Filtreleme ve sıralama sonrası ürünleri tutmak için
+        let selectedProductsForComparison = {}; // Karşılaştırılacak ürünleri tutmak için
+
+        // Kategorileri yükleme fonksiyonu
+        const loadCategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/categories');
+                if (!response.ok) {
+                    throw new Error('Kategoriler yüklenemedi.');
+                }
+                const data = await response.json();
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categoryFilterSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Kategorileri yüklerken hata:', error);
+            }
+        };
+
+        // Sayfa yüklendiğinde kategorileri çağır
+        document.addEventListener('DOMContentLoaded', loadCategories);
+
+        // Ürün arama fonksiyonu (AI destekli ilk arama)
+        const searchProducts = async () => {
+            const query = queryInput.value;
+
+            if (!query.trim()) {
+                errorDiv.textContent = 'Lütfen bir arama sorgusu girin.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            loadingDiv.classList.remove('hidden');
+            errorDiv.classList.add('hidden');
+            resultsDiv.innerHTML = ''; // Önceki sonuçları temizle
+            filtersSortDiv.classList.add('hidden'); // Filtreleri gizle
+            resetFilterInputs(); // Filtre inputlarını sıfırla
+
+            try {
+                const response = await fetch('http://localhost:3000/api/search-products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Bilinmeyen bir hata oluştu.');
+                }
+
+                const data = await response.json();
+                loadingDiv.classList.add('hidden');
+
+                currentProducts = data.products; // Tüm ürünleri kaydet (filtrelemeden önce)
+                applyFiltersAndSort(); // İlk arama sonrası filtreleri uygula ve göster
+
+                if (currentProducts.length > 0) {
+                    filtersSortDiv.classList.remove('hidden'); // Filtreleri göster
+                } else {
+                    resultsDiv.innerHTML = '<p>Aradığınız kriterlere uygun ürün bulunamadı. Lütfen arama sorgunuzu değiştirmeyi deneyin.</p>';
+                }
+
+            } catch (error) {
+                loadingDiv.classList.add('hidden');
+                errorDiv.textContent = 'Hata: ' + error.message;
+                errorDiv.classList.remove('hidden');
+                console.error('Fetch hatası:', error);
+            }
+        };
+
+        // Filtreleri uygulama ve sıralama fonksiyonu (manuel filtreler ve sıralama için)
+        const applyFiltersAndSort = () => {
+            let tempProducts = [...currentProducts]; // Mevcut ürünler üzerinde çalış
+
+            // Kategori Filtresi
+            const selectedCategory = categoryFilterSelect.value;
+            if (selectedCategory) {
+                tempProducts = tempProducts.filter(product => product.category === selectedCategory);
+            }
+
+            // Fiyat Filtresi
+            const minPrice = parseFloat(minPriceInput.value);
+            const maxPrice = parseFloat(maxPriceInput.value);
+
+            if (!isNaN(minPrice) && minPrice >= 0) {
+                tempProducts = tempProducts.filter(product => product.price >= minPrice);
+            }
+            if (!isNaN(maxPrice) && maxPrice >= 0) {
+                tempProducts = tempProducts.filter(product => product.price <= maxPrice);
+            }
+
+            // Sıralama
+            const sortOrder = sortOrderSelect.value;
+            if (sortOrder === 'price-asc') {
+                tempProducts.sort((a, b) => a.price - b.price);
+            } else if (sortOrder === 'price-desc') {
+                tempProducts.sort((a, b) => b.price - a.price);
+            }
+
+            filteredAndSortedProducts = tempProducts; // Filtrelenmiş ve sıralanmış ürünleri kaydet
+            displayProducts(filteredAndSortedProducts); // Ürünleri göster
+        };
+
+        // Ürünleri sayfada gösterme fonksiyonu
+        const displayProducts = (productsToDisplay) => {
+            resultsDiv.innerHTML = '';
+            if (productsToDisplay && productsToDisplay.length > 0) {
+                productsToDisplay.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.classList.add('product-card');
+                    productCard.dataset.productId = product.id; // Ürün ID'sini kaydet
+
+                    // "Karşılaştır" checkbox'ı
+                    const compareCheckbox = document.createElement('input');
+                    compareCheckbox.type = 'checkbox';
+                    compareCheckbox.id = `compare-${product.id}`;
+                    compareCheckbox.classList.add('compare-checkbox');
+                    compareCheckbox.value = product.id;
+                    // Eğer ürün zaten seçiliyse checkbox'ı işaretle
+                    if (selectedProductsForComparison[product.id]) {
+                        compareCheckbox.checked = true;
+                    }
+                    compareCheckbox.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            selectedProductsForComparison[product.id] = product;
+                        } else {
+                            delete selectedProductsForComparison[product.id];
+                        }
+                        updateCompareModal();
+                    });
+
+                    const compareLabel = document.createElement('label');
+                    compareLabel.htmlFor = `compare-${product.id}`;
+                    compareLabel.textContent = 'Karşılaştır';
+
+                    const compareContainer = document.createElement('div');
+                    compareContainer.classList.add('compare-container');
+                    compareContainer.appendChild(compareCheckbox);
+                    compareContainer.appendChild(compareLabel);
+
+                    productCard.innerHTML = `
+                        <img src="${product.image_url || 'https://via.placeholder.com/150/cccccc/ffffff?text=Resim+Yok'}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="price">${product.price} TL</p>
+                        <p class="category">Kategori: ${product.category}</p>
+                        <p class="features">Özellikler: ${product.features ? product.features.join(', ') : 'Belirtilmemiş'}</p>
+                        <button class="view-details-btn">Detayları Gör</button>
+                    `;
+                    productCard.prepend(compareContainer); // Checkbox'ı en üste ekle
+                    resultsDiv.appendChild(productCard);
+                });
+            } else {
+                resultsDiv.innerHTML = '<p>Aradığınız kriterlere uygun ürün bulunamadı. Lütfen arama sorgunuzu değiştirmeyi deneyin veya filtreleri sıfırlayın.</p>';
+            }
+        };
+
+        // Filtre inputlarını sıfırlama fonksiyonu
+        const resetFilterInputs = () => {
+            categoryFilterSelect.value = '';
+            minPriceInput.value = '';
+            maxPriceInput.value = '';
+            sortOrderSelect.value = '';
+        };
+
+        // Olay Dinleyicileri
+        searchButton.addEventListener('click', searchProducts);
+        queryInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchProducts();
+            }
+        });
+
+        // Filtreleme butonuna tıklanınca filtreleri ve sıralamayı uygula
+        applyFiltersButton.addEventListener('click', applyFiltersAndSort);
+
+        // Ürün Detay Modalını Açma
+        resultsDiv.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('view-details-btn')) {
+                const productId = e.target.closest('.product-card').dataset.productId;
+                try {
+                    const response = await fetch(`http://localhost:3000/api/product/${productId}`);
+                    if (!response.ok) {
+                        throw new Error('Ürün detayları alınamadı.');
+                    }
+                    const product = await response.json();
+                    modalProductContent.innerHTML = `
+                        <img src="${product.image_url || 'https://via.placeholder.com/200/cccccc/ffffff?text=Resim+Yok'}" alt="${product.name}">
+                        <h2>${product.name}</h2>
+                        <p><strong>Açıklama:</strong> ${product.description}</p>
+                        <p><strong>Fiyat:</strong> ${product.price} TL</p>
+                        <p><strong>Kategori:</strong> ${product.category}</p>
+                        <p><strong>Özellikler:</strong> ${product.features ? product.features.join(', ') : 'Belirtilmemiş'}</p>
+                    `;
+                    productDetailModal.classList.remove('hidden');
+                } catch (error) {
+                    console.error('Ürün detayını getirirken hata:', error);
+                    errorDiv.textContent = 'Ürün detayları yüklenemedi: ' + error.message;
+                    errorDiv.classList.remove('hidden');
+                }
+            }
+        });
+
+        // Karşılaştırma Modalını Güncelleme ve Açma
+        const updateCompareModal = () => {
+            productsToCompareList.innerHTML = '';
+            const selectedCount = Object.keys(selectedProductsForComparison).length;
+            startComparisonButton.disabled = selectedCount < 2; // En az 2 ürün seçili değilse butonu devre dışı bırak
+
+            if (selectedCount === 0) {
+                productsToCompareList.innerHTML = '<p>Lütfen karşılaştırmak istediğiniz ürünleri seçin.</p>';
+            } else {
+                Object.values(selectedProductsForComparison).forEach(product => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<img src="${product.image_url || 'https://via.placeholder.com/50'}" alt="${product.name}" width="50"> ${product.name}`;
+                    productsToCompareList.appendChild(div);
+                });
+            }
+            
+            if (selectedCount >= 1) { // 1 veya daha fazla ürün seçildiğinde modalı göster
+                compareModal.classList.remove('hidden');
+            } else if (selectedCount === 0 && !compareModal.classList.contains('hidden')) {
+                 compareModal.classList.add('hidden'); // Tüm seçimler kaldırıldıysa kapat
+            }
+        };
+
+        // Karşılaştırma Başlatma
+        startComparisonButton.addEventListener('click', async () => {
+            const productIds = Object.keys(selectedProductsForComparison);
+            if (productIds.length < 2) {
+                compareErrorDiv.textContent = 'Lütfen en az iki ürün seçin.';
+                compareErrorDiv.classList.remove('hidden');
+                return;
+            }
+
+            compareLoadingDiv.classList.remove('hidden');
+            compareErrorDiv.classList.add('hidden');
+            comparisonResultsDiv.innerHTML = ''; // Önceki sonuçları temizle
+
+            try {
+                const response = await fetch('http://localhost:3000/api/compare-products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productIds })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Karşılaştırma sırasında bir hata oluştu.');
+                }
+
+                const data = await response.json();
+                compareLoadingDiv.classList.add('hidden');
+                comparisonResultsDiv.innerHTML = `<h4>Karşılaştırma Sonuçları:</h4><pre>${data.comparison}</pre>`;
+
+            } catch (error) {
+                compareLoadingDiv.classList.add('hidden');
+                compareErrorDiv.textContent = 'Karşılaştırma hatası: ' + error.message;
+                compareErrorDiv.classList.remove('hidden');
+                console.error('Karşılaştırma Fetch hatası:', error);
+            }
+        });
+
+        // Modal kapatma butonları
+        closeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const modalToClose = e.target.closest('.modal');
+                if (modalToClose) {
+                    modalToClose.classList.add('hidden');
+                    // Karşılaştırma modalı kapatılırken seçimleri temizle
+                    if (modalToClose.id === 'compareModal') {
+                        selectedProductsForComparison = {};
+                        document.querySelectorAll('.compare-checkbox').forEach(cb => cb.checked = false);
+                        comparisonResultsDiv.innerHTML = '';
+                        compareErrorDiv.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

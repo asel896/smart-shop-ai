@@ -1,0 +1,135 @@
+<!---
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartShop - Ana Sayfa</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1><img src="assets/logo.png" alt="Logo"> SmartShop</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana Sayfa</a></li>
+        <li><a href="products.html">Ürünler</a></li>
+        <li><a href="about.html">Hakkımızda</a></li>
+        <li><a href="contact.html">İletişim</a></li>
+        <li><a href="login.html">Giriş</a></li>
+        <li><a href="cart.html">Sepet</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="banner">
+    <h2>SmartShop'a Hoş Geldiniz!</h2>
+    <p>En yeni ürünleri en uygun fiyatlarla keşfedin.</p>
+    <a href="products.html"><button>Alışverişe Başla</button></a>
+  </section>
+
+  <main>
+    <h2 style="text-align:center; margin: 40px 0 20px;">Popüler Ürünler</h2>
+    <div class="product-grid">
+      <div class="product-card">
+        <img src="assets/urun1.jpg" alt="Ürün 1">
+        <h3>Ürün Adı 1</h3>
+        <p>₺199</p>
+        <a href="product-detail.html?id=1"><button>İncele</button></a>
+      </div>
+
+      <div class="product-card">
+        <img src="assets/urun2.jpg" alt="Ürün 2">
+        <h3>Ürün Adı 2</h3>
+        <p>₺249</p>
+        <a href="product-detail.html?id=2"><button>İncele</button></a>
+      </div>
+
+      <div class="product-card">
+        <img src="assets/urun3.jpg" alt="Ürün 3">
+        <h3>Ürün Adı 3</h3>
+        <p>₺149</p>
+        <a href="product-detail.html?id=3"><button>İncele</button></a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SmartShop. Tüm hakları saklıdır.</p>
+  </footer>
+</body>
+</html>
+
+
+--->
+
+
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartShop - Ana Sayfa</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo-title">
+      <img src="assets/logo.png" alt="Logo" class="logo">
+      <h1>SmartShop</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana Sayfa</a></li>
+        <li><a href="products.html">Ürünler</a></li>
+        <li><a href="about.html">Hakkımızda</a></li>
+        <li><a href="contact.html">İletişim</a></li>
+        <li><a href="login.html">Giriş</a></li>
+        <li><a href="cart.html">Sepet</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="banner">
+    <h2>SmartShop'a Hoş Geldiniz!</h2>
+    <p>En yeni ürünleri en uygun fiyatlarla keşfedin.</p>
+    <a href="products.html" class="primary-btn">Alışverişe Başla</a>
+  </section>
+
+  <main>
+    <h2 class="section-title">Popüler Ürünler</h2>
+    <div class="product-grid">
+      <div class="product-card">
+        <img src="assets/urun1.jpg" alt="Ürün 1">
+        <h3>Ürün Adı 1</h3>
+        <p>₺199</p>
+        <a href="product-detail.html?id=1" class="card-btn">İncele</a>
+      </div>
+      <div class="product-card">
+        <img src="assets/urun2.jpg" alt="Ürün 2">
+        <h3>Ürün Adı 2</h3>
+        <p>₺249</p>
+        <a href="product-detail.html?id=2" class="card-btn">İncele</a>
+      </div>
+      <div class="product-card">
+        <img src="assets/urun3.jpg" alt="Ürün 3">
+        <h3>Ürün Adı 3</h3>
+        <p>₺149</p>
+        <a href="product-detail.html?id=3" class="card-btn">İncele</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 SmartShop. Tüm hakları saklıdır.</p>
+  </footer>
+  <select id="category-filter">
+  <option value="all">Tüm Ürünler</option>
+  <option value="Elektronik">Elektronik</option>
+  <option value="Giyilebilir Teknoloji">Giyilebilir Teknoloji</option>
+  ...
+</select>
+</body>
+</html>
+<script src="script.js"></script>

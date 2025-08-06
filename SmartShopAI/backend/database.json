@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "name": "Akıllı Saat",
+    "price": 899,
+    "description": "Yapay zekalı fitness asistanı",
+    "image": "assets/urun1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Kablosuz Kulaklık",
+    "price": 299,
+    "description": "Ses kalitesi yüksek bluetooth kulaklık",
+    "image": "assets/urun2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Bluetooth Hoparlör",
+    "price": 349,
+    "description": "Taşınabilir ve güçlü ses deneyimi.",
+    "image": "assets/urun3.jpg"
+  }
+
+]
+

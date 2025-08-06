@@ -1,0 +1,467 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f7;
+    margin: 0;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 960px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+p {
+    color: #555;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+.search-box {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+textarea {
+    width: calc(100% - 24px);
+    padding: 12px;
+    border: 1px solid #c9d6de;
+    border-radius: 6px;
+    font-size: 1em;
+    min-height: 100px;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: center;
+}
+
+button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.filters-sort {
+    display: flex;
+    flex-wrap: wrap; /* Küçük ekranlarda alt alta gelmesi için */
+    justify-content: center;
+    align-items: flex-end; /* Butonların hizalanması için */
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.filters-sort label {
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.filters-sort select,
+.filters-sort input[type="number"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    width: 120px; /* Genişlik sabitle */
+}
+
+.filters-sort input[type="number"] {
+    width: 80px; /* Fiyat inputları daha dar */
+    text-align: center;
+}
+
+.price-filter {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.price-filter span {
+    font-weight: bold;
+    color: #777;
+}
+
+.apply-filters-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-top: 15px; /* Hizalama için */
+}
+
+.apply-filters-btn:hover {
+    background-color: #218838;
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+#loading, #compareLoading {
+    color: #007bff;
+    font-weight: bold;
+    margin-top: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 123, 255, 0.3);
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #dc3545;
+    margin-top: 25px;
+    font-weight: bold;
+    background-color: #ffebeb;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #dc3545;
+}
+
+.results-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.product-card {
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s ease;
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-card img {
+    max-width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #f0f0f0;
+}
+
+.product-card h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.product-card p {
+    color: #555;
+    font-size: 0.95em;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.product-card .price {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+
+.product-card .category, .product-card .features {
+    font-size: 0.85em;
+    color: #777;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.product-card .view-details-btn {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.product-card .view-details-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Karşılaştır checkbox */
+.compare-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.compare-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.compare-container label {
+    font-size: 0.85em;
+    color: #333;
+    font-weight: normal;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Modal Stilleri */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 700px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    position: relative;
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+    text-align: left;
+}
+
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modalProductContent img {
+    max-width: 100%;
+    height: 250px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 20px auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+#modalProductContent h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+#modalProductContent p {
+    text-align: left;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #444;
+}
+
+#modalProductContent strong {
+    color: #222;
+}
+
+/* Karşılaştırma Modalı Stilleri */
+#productsToCompareList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    justify-content: center;
+    border: 1px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    min-height: 50px;
+    align-items: center;
+}
+
+#productsToCompareList div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #e6f3ff;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #a0c3e6;
+    font-size: 0.9em;
+    color: #333;
+}
+
+#productsToCompareList img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#comparisonResults {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    text-align: left;
+    font-size: 0.95em;
+}
+
+#comparisonResults h4 {
+    text-align: center;
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+/* Responsive ayarlar */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    .filters-sort {
+        flex-direction: column;
+        align-items: center; /* Ortala */
+        padding: 10px;
+    }
+    .filter-group {
+        width: 100%; /* Mobil cihazlarda tam genişlik */
+        align-items: center;
+    }
+    .filters-sort select,
+    .filters-sort input[type="number"] {
+        width: 80%; /* Mobil cihazlarda daha geniş inputlar */
+        max-width: 150px;
+    }
+    .price-filter {
+        flex-direction: row; /* Fiyat aralığını tek satırda tut */
+        width: 100%;
+        justify-content: center;
+    }
+}

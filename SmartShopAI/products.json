@@ -1,0 +1,56 @@
+[
+  {
+    "id": "1",
+    "name": "Kablosuz Kulaklık (ANC)",
+    "description": "Aktif gürültü engelleme özellikli, uzun pil ömürlü kablosuz kulaklık. Yüksek ses kalitesi sunar.",
+    "price": 850,
+    "category": "Elektronik",
+    "features": ["Kablosuz", "Gürültü Engelleme", "Uzun Pil Ömrü", "Yüksek Ses Kalitesi"],
+    "image_url": "https://example.com/kulaklik.jpg"
+  },
+  {
+    "id": "2",
+    "name": "Akıllı Saat (Su Geçirmez)",
+    "description": "Adım sayar, kalp ritmi ölçer, uyku takibi yapar ve su geçirmez özelliktedir. Sporcular için ideal.",
+    "price": 1200,
+    "category": "Giyilebilir Teknoloji",
+    "features": ["Su Geçirmez", "Kalp Ritmi", "Adım Sayar", "Uyku Takibi", "Spor"],
+    "image_url": "https://example.com/saat.jpg"
+  },
+  {
+    "id": "3",
+    "name": "Yoga Matı (Kaymaz)",
+    "description": "Yüksek kaliteli, kaymaz yüzeyli yoga matı. Dayanıklı ve çevre dostu malzemelerden üretilmiştir.",
+    "price": 300,
+    "category": "Spor & Outdoor",
+    "features": ["Kaymaz", "Dayanıklı", "Çevre Dostu", "Yoga"],
+    "image_url": "https://example.com/yoga-mati.jpg"
+  },
+  {
+    "id": "4",
+    "name": "Kitap Okuma Lambası (Ayarlanabilir)",
+    "description": "USB şarjlı, parlaklık ve renk sıcaklığı ayarlanabilir kitap okuma lambası. Göz dostu ışık.",
+    "price": 150,
+    "category": "Ev & Yaşam",
+    "features": ["Ayarlanabilir Parlaklık", "USB Şarj", "Göz Dostu", "Kitap Okuma"],
+    "image_url": "https://example.com/kitap-lambasi.jpg"
+  },
+  {
+    "id": "5",
+    "name": "Taşınabilir Bluetooth Hoparlör",
+    "description": "Kompakt tasarımlı, güçlü ses çıkışına sahip taşınabilir hoparlör. 10 saate kadar pil ömrü.",
+    "price": 450,
+    "category": "Elektronik",
+    "features": ["Taşınabilir", "Bluetooth", "Güçlü Ses", "Uzun Pil Ömrü"],
+    "image_url": "https://example.com/hoparlor.jpg"
+  },
+  {
+  "id": "6",
+  "name": "Powerbank 20.000mAh",
+  "description": "Hızlı şarj destekli, ultra ince tasarıma sahip powerbank. Tüm cihazlar için uyumlu.",
+  "price": 690,
+  "category": "Elektronik",
+  "features": ["Hızlı Şarj", "Yüksek Kapasite", "Taşınabilir", "USB-C"],
+  "image_url": "https://example.com/powerbank.jpg"
+}
+]
